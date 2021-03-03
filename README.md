@@ -9,6 +9,7 @@ You can install the Nano app from the Ledger Manager. If it doesn't show up for 
 To interact with the Nano network, you need to use a wallet software that has integrated Ledger support. Currently the following wallets have integrated Ledger support:
 
 - [NanoVault.io](https://nanovault.io/) ([user guide](http://blog.nanovault.io/guides/use-your-ledger-device-with-nanovault/))
+- [Nault.cc](https://nault.cc/) ([user guide](https://github.com/Nault/Nault/blob/master/README.md))
 
 _If a wallet is missing from above, please [create an issue](https://github.com/roosmaa/blue-app-nano/issues/new) and it will be added to this list._
 
