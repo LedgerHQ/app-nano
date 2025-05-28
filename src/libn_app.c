@@ -26,7 +26,7 @@
 
 #include "u2f_transport.h"
 #include "u2f_processing.h"
-
+extern u2f_service_t G_io_u2f;
 #endif // HAVE_IO_U2F
 
 void libn_bagl_idle(void);
