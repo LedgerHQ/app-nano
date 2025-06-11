@@ -56,21 +56,21 @@ ALL_PATH_PARAMS += $(NOS_PATH_PARAM)
 
 ifeq ($(APP_TYPE), standalone)
     ifeq ($(TARGET_NAME),TARGET_NANOX)
-LIB_LOAD_FLAGS = --appFlags 0x250
-APP_LOAD_FLAGS = --appFlags 0x250
+LIB_LOAD_FLAGS = --appFlags 0x200
+APP_LOAD_FLAGS = --appFlags 0x200
     else
-LIB_LOAD_FLAGS = --appFlags 0x50
-APP_LOAD_FLAGS = --appFlags 0x50
+LIB_LOAD_FLAGS = --appFlags 0x00
+APP_LOAD_FLAGS = --appFlags 0x00
     endif
 DEFINES += IS_STANDALONE_APP
 
 else ifeq ($(APP_TYPE), shared)
     ifeq ($(TARGET_NAME),TARGET_NANOX)
-LIB_LOAD_FLAGS = --appFlags 0xA50
-APP_LOAD_FLAGS = --appFlags 0x250 --dep Nano
+LIB_LOAD_FLAGS = --appFlags 0xA00
+APP_LOAD_FLAGS = --appFlags 0x200 --dep Nano
     else
-LIB_LOAD_FLAGS = --appFlags 0x850
-APP_LOAD_FLAGS = --appFlags 0x50 --dep Nano
+LIB_LOAD_FLAGS = --appFlags 0x800
+APP_LOAD_FLAGS = --appFlags 0x00 --dep Nano
     endif
 DEFINES += SHARED_LIBRARY_NAME=\"$(NANO_APP_NAME)\"
 DEFINES += HAVE_COIN_NANO
@@ -112,7 +112,7 @@ endif
 
 APPVERSION_M=1
 APPVERSION_N=2
-APPVERSION_P=6
+APPVERSION_P=8
 APPVERSION=$(APPVERSION_M).$(APPVERSION_N).$(APPVERSION_P)
 
 MAX_ADPU_INPUT_SIZE=217
