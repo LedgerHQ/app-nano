@@ -18,10 +18,85 @@
 ifeq ($(BOLOS_SDK),)
 $(error Environment variable BOLOS_SDK is not set)
 endif
+
+include $(BOLOS_SDK)/Makefile.target
+
+########################################
+#        Mandatory configuration       #
+########################################
+# Application name
+APPNAME = "Boilerplate"
+
+# Application version
+APPVERSION_M = 1
+APPVERSION_N = 2
+APPVERSION_P = 8
+APPVERSION = "$(APPVERSION_M).$(APPVERSION_N).$(APPVERSION_P)"
+
+# Application source files
+APP_SOURCE_PATH += src
+
+# Setting to allow building variant applications
+# - <VARIANT_PARAM> is the name of the parameter which should be set
+#   to specify the variant that should be build.
+# - <VARIANT_VALUES> a list of variant that can be build using this app code.
+#   * It must at least contains one value.
+#   * Values can be the app ticker or anything else but should be unique.
+VARIANT_PARAM = COIN
+VARIANT_VALUES = nano banano nos
+
+# Enabling DEBUG flag will enable PRINTF and disable optimizations
+#DEBUG = 1
+
+########################################
+#     Application custom permissions   #
+########################################
+# See SDK `include/appflags.h` for the purpose of each permission
+#HAVE_APPLICATION_FLAG_DERIVE_MASTER = 1
+#HAVE_APPLICATION_FLAG_GLOBAL_PIN = 1
+#HAVE_APPLICATION_FLAG_BOLOS_SETTINGS = 1
+#HAVE_APPLICATION_FLAG_LIBRARY = 1
+
+########################################
+# Application communication interfaces #
+########################################
+ENABLE_BLUETOOTH = 1
+#ENABLE_NFC = 1
+ENABLE_NBGL_FOR_NANO_DEVICES = 0
+
+########################################
+#         NBGL custom features         #
+########################################
+#ENABLE_NBGL_QRCODE = 1
+#ENABLE_NBGL_KEYBOARD = 1
+#ENABLE_NBGL_KEYPAD = 1
+
+########################################
+#          Features disablers          #
+########################################
+# These advanced settings allow to disable some feature that are by
+# default enabled in the SDK `Makefile.standard_app`.
+#DISABLE_STANDARD_APP_FILES = 1
+#DISABLE_DEFAULT_IO_SEPROXY_BUFFER_SIZE = 1 # To allow custom size declaration
+#DISABLE_STANDARD_APP_DEFINES = 1 # Will set all the following disablers
+#DISABLE_STANDARD_SNPRINTF = 1
+#DISABLE_STANDARD_USB = 1
+#DISABLE_STANDARD_WEBUSB = 1
+#DISABLE_DEBUG_LEDGER_ASSERT = 1
+#DISABLE_DEBUG_THROW = 1
+
+########################################
+#           Nano S (Legacy)            #
+########################################
+ifeq ($(TARGET_NAME),TARGET_NANOS)
+        DEFINES += HAVE_UX_LEGACY
+else
+        DEFINES += HAVE_UX_FLOW
+endif
+
 ifeq (customCA.key,$(wildcard customCA.key))
     SCP_PRIVKEY=`cat customCA.key`
 endif
-include $(BOLOS_SDK)/Makefile.defines
 
 # Default to shared app
 ifeq ($(APP_TYPE),)
@@ -55,65 +130,42 @@ NOS_COIN_TYPE = LIBN_COIN_TYPE_NOS
 ALL_PATH_PARAMS += $(NOS_PATH_PARAM)
 
 ifeq ($(APP_TYPE), standalone)
-    ifeq ($(TARGET_NAME),TARGET_NANOX)
-LIB_LOAD_FLAGS = --appFlags 0x200
-APP_LOAD_FLAGS = --appFlags 0x200
-    else
-LIB_LOAD_FLAGS = --appFlags 0x00
-APP_LOAD_FLAGS = --appFlags 0x00
-    endif
-DEFINES += IS_STANDALONE_APP
-
+    DEFINES += IS_STANDALONE_APP
 else ifeq ($(APP_TYPE), shared)
-    ifeq ($(TARGET_NAME),TARGET_NANOX)
-LIB_LOAD_FLAGS = --appFlags 0xA00
-APP_LOAD_FLAGS = --appFlags 0x200 --dep Nano
-    else
-LIB_LOAD_FLAGS = --appFlags 0x800
-APP_LOAD_FLAGS = --appFlags 0x00 --dep Nano
-    endif
-DEFINES += SHARED_LIBRARY_NAME=\"$(NANO_APP_NAME)\"
-DEFINES += HAVE_COIN_NANO
-DEFINES += HAVE_COIN_BANANO
-DEFINES += HAVE_COIN_NOS
-
-else
-ifneq ($(MAKECMDGOALS),listvariants)
-$(error Unsupported APP_TYPE - use standalone, shared)
-endif
+    DEFINES += SHARED_LIBRARY_NAME=\"$(NANO_APP_NAME)\"
+    DEFINES += HAVE_COIN_NANO
+    DEFINES += HAVE_COIN_BANANO
+    DEFINES += HAVE_COIN_NOS
+else ifneq ($(MAKECMDGOALS),listvariants)
+    $(error Unsupported APP_TYPE - use standalone, shared)
 endif
 
 ifeq ($(COIN),nano)
-APPNAME = $(NANO_APP_NAME)
-ifeq ($(APP_TYPE), shared)
-APP_LOAD_PARAMS += $(LIB_LOAD_FLAGS) $(ALL_PATH_PARAMS)
-DEFINES += IS_SHARED_LIBRARY
-else
-APP_LOAD_PARAMS += $(LIB_LOAD_FLAGS) $(NANO_PATH_PARAM)
-endif
-DEFINES += HAVE_COIN_NANO
-DEFINES += DEFAULT_COIN_TYPE=$(NANO_COIN_TYPE)
-
+    APPNAME = $(NANO_APP_NAME)
+    DEFINES += HAVE_COIN_NANO
+    DEFINES += DEFAULT_COIN_TYPE=$(NANO_COIN_TYPE)
+    ifeq ($(APP_TYPE), shared)
+        APP_LOAD_PARAMS += $(ALL_PATH_PARAMS)
+        HAVE_APPLICATION_FLAG_LIBRARY = 1
+        DEFINES += IS_SHARED_LIBRARY
+    else
+        APP_LOAD_PARAMS += $(NANO_PATH_PARAM)
+    endif
 else ifeq ($(COIN),banano)
-APPNAME = $(BANANO_APP_NAME)
-APP_LOAD_PARAMS += $(APP_LOAD_FLAGS) $(BANANO_PATH_PARAM)
-DEFINES += HAVE_COIN_BANANO
-DEFINES += DEFAULT_COIN_TYPE=$(BANANO_COIN_TYPE)
-
+    APPNAME = $(BANANO_APP_NAME)
+    APP_LOAD_PARAMS += $(BANANO_PATH_PARAM)
+    DEP_APP_LOAD_PARAMS := $(NANO_APP_NAME)
+    DEFINES += HAVE_COIN_BANANO
+    DEFINES += DEFAULT_COIN_TYPE=$(BANANO_COIN_TYPE)
 else ifeq ($(COIN),nos)
-APPNAME = $(NOS_APP_NAME)
-APP_LOAD_PARAMS += $(APP_LOAD_FLAGS) $(NOS_PATH_PARAM)
-DEFINES += HAVE_COIN_NOS
-DEFINES += DEFAULT_COIN_TYPE=$(NOS_COIN_TYPE)
-
+    APPNAME = $(NOS_APP_NAME)
+    APP_LOAD_PARAMS += $(NOS_PATH_PARAM)
+    DEP_APP_LOAD_PARAMS := $(NANO_APP_NAME)
+    DEFINES += HAVE_COIN_NOS
+    DEFINES += DEFAULT_COIN_TYPE=$(NOS_COIN_TYPE)
 else ifeq ($(filter clean listvariants,$(MAKECMDGOALS)),)
-$(error Unsupported COIN - use nano, banano, nos)
+    $(error Unsupported COIN - use nano, banano, nos)
 endif
-
-APPVERSION_M=1
-APPVERSION_N=2
-APPVERSION_P=8
-APPVERSION=$(APPVERSION_M).$(APPVERSION_N).$(APPVERSION_P)
 
 MAX_ADPU_INPUT_SIZE=217
 MAX_ADPU_OUTPUT_SIZE=98
@@ -135,8 +187,7 @@ all: default
 ############
 # Platform #
 ############
-
-DEFINES   += OS_IO_SEPROXYHAL IO_SEPROXYHAL_BUFFER_SIZE_B=300
+DEFINES   += OS_IO_SEPROXYHAL
 DEFINES   += HAVE_BAGL HAVE_SPRINTF
 DEFINES   += HAVE_IO_USB HAVE_L4_USBLIB IO_USB_MAX_ENDPOINTS=4 IO_HID_EP_LENGTH=64 HAVE_USB_APDU
 DEFINES   += APP_MAJOR_VERSION=$(APPVERSION_M) APP_MINOR_VERSION=$(APPVERSION_N) APP_PATCH_VERSION=$(APPVERSION_P)
@@ -156,26 +207,9 @@ DEFINES   += APPVERSION=\"$(APPVERSION)\"
 #DEFINES   += HAVE_WEBUSB WEBUSB_URL_SIZE_B=$(shell echo -n $(WEBUSB_URL) | wc -c) WEBUSB_URL=$(shell echo -n $(WEBUSB_URL) | sed -e "s/./\\\'\0\\\',/g")
 DEFINES   += HAVE_WEBUSB WEBUSB_URL_SIZE_B=0 WEBUSB_URL=""
 
-ifneq ($(TARGET_NAME),TARGET_NANOS)
-DEFINES       += HAVE_GLO096
-DEFINES       += HAVE_BAGL BAGL_WIDTH=128 BAGL_HEIGHT=64
-DEFINES       += HAVE_BAGL_ELLIPSIS # long label truncation feature
-DEFINES       += HAVE_BAGL_FONT_OPEN_SANS_REGULAR_11PX
-DEFINES       += HAVE_BAGL_FONT_OPEN_SANS_EXTRABOLD_11PX
-DEFINES       += HAVE_BAGL_FONT_OPEN_SANS_LIGHT_16PX
-DEFINES	      += HAVE_UX_FLOW
-endif
-
-ifeq ($(TARGET_NAME),TARGET_NANOX)
-# BLE
-DEFINES       += HAVE_BLE BLE_COMMAND_TIMEOUT_MS=2000
-DEFINES       += HAVE_BLE_APDU # basic ledger apdu transport over BLE
-endif
-
 # Enabling debug PRINTF
 DEBUG = 0
 ifneq ($(DEBUG),0)
-
         ifeq ($(TARGET_NAME),TARGET_NANOS)
                 DEFINES   += HAVE_PRINTF PRINTF=screen_printf
         else
@@ -185,9 +219,9 @@ else
         DEFINES   += PRINTF\(...\)=
 endif
 
-##############
+############
 # Compiler #
-##############
+############
 ifneq ($(BOLOS_ENV),)
 $(info BOLOS_ENV=$(BOLOS_ENV))
 CLANGPATH := $(BOLOS_ENV)/clang-arm-fropi/bin/
@@ -213,11 +247,7 @@ LD       := $(GCCPATH)arm-none-eabi-gcc
 LDFLAGS  += -O3 -Os
 LDLIBS   += -lm -lgcc -lc
 
-# import rules to compile glyphs(/pone)
-include $(BOLOS_SDK)/Makefile.glyphs
-
-### variables processed by the common makefile.rules of the SDK to grab source files and include dirs
-APP_SOURCE_PATH  += src
+# variables processed by the common makefile.rules of the SDK to grab source files and include dirs
 SDK_SOURCE_PATH  += lib_stusb
 SDK_SOURCE_PATH  += lib_stusb_impl
 SDK_SOURCE_PATH  += lib_u2f
@@ -227,17 +257,7 @@ ifeq ($(TARGET_NAME),TARGET_NANOX)
 SDK_SOURCE_PATH  += lib_blewbxx lib_blewbxx_impl
 endif
 
-load: all
-	python -m ledgerblue.loadApp $(APP_LOAD_PARAMS)
-
-delete:
-	python -m ledgerblue.deleteApp $(COMMON_DELETE_PARAMS)
-
-# import generic rules from the sdk
-include $(BOLOS_SDK)/Makefile.rules
-
-#add dependency on custom makefile filename
+# add dependency on custom makefile filename
 dep/%.d: %.c Makefile
 
-listvariants:
-	@echo VARIANTS COIN nano banano nos
+include $(BOLOS_SDK)/Makefile.standard_app
