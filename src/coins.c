@@ -18,7 +18,7 @@ REGISTER_COINS(
              .addressSecondaryPrefix = "xrb_",
              .addressDefaultPrefix = LIBN_PRIMARY_PREFIX,
              .defaultUnit = "NANO",
-             .defaultUnitScale = 30,  // 1 Mnano = 10^30 raw
+             .defaultUnitScale = 30,  // 1 nano = 10^30 raw
 #if defined(TARGET_BLUE)
              .colorBackground = 0xF9F9F9,
              .colorForeground = 0x000000,
@@ -33,7 +33,7 @@ REGISTER_COINS(
              .colorConfirmOverBackground = 0x3177C9,
              .colorConfirmOverForeground = 0xFFFFFF,
              .iconToggleOff = &C_blue_icon_toggle_off,
-             .iconToggleOn = &C_blue_icon_toggle_on_nano,
+             .iconToggleOn = &C_blue_icon_toggle_on,
 #endif  // TARGET_BLUE
          })
 #endif
@@ -67,7 +67,7 @@ REGISTER_COINS(
                  .colorConfirmOverBackground = 0xE2C400,
                  .colorConfirmOverForeground = 0xE6473F,
                  .iconToggleOff = &C_blue_icon_toggle_off,
-                 .iconToggleOn = &C_blue_icon_toggle_on_banano,
+                 .iconToggleOn = &C_blue_icon_toggle_on,
 #endif  // TARGET_BLUE
              })
 #endif
@@ -101,7 +101,7 @@ REGISTER_COINS(
                      .colorConfirmOverBackground = 0x3177C9,
                      .colorConfirmOverForeground = 0xFFFFFF,
                      .iconToggleOff = &C_blue_icon_toggle_off,
-                     .iconToggleOn = &C_blue_icon_toggle_on_nos,
+                     .iconToggleOn = &C_blue_icon_toggle_on,
 #endif  // TARGET_BLUE
                  })
 #endif
