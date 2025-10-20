@@ -390,6 +390,7 @@ void libn_bagl_confirm_sign_block(void) {
 }
 
 void ui_ticker_event(bool uxAllowed) {
+    UNUSED(uxAllowed);
 }
 
 bool libn_bagl_apply_state() {

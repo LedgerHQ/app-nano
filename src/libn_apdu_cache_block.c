@@ -23,9 +23,7 @@
 #define P1_UNUSED 0x00
 #define P2_UNUSED 0x00
 
-uint16_t libn_apdu_cache_block_output(libn_apdu_response_t *resp, libn_apdu_cache_block_request_t *req);
-
-uint16_t libn_apdu_cache_block(libn_apdu_response_t *resp) {
+uint16_t libn_apdu_cache_block() {
     libn_apdu_cache_block_request_t req;
     uint8_t keyPath[MAX_BIP32_PATH_LENGTH];
     libn_private_key_t privateKey;
@@ -91,16 +89,15 @@ uint16_t libn_apdu_cache_block(libn_apdu_response_t *resp) {
 
     readLen = sizeof(req.signature);
     memmove(req.signature, inPtr, readLen);
-    inPtr += readLen;
 
     libn_hash_block(req.blockHash, &req.block, req.publicKey);
 
-    uint16_t statusWord = libn_apdu_cache_block_output(resp, &req);
+    uint16_t statusWord = libn_apdu_cache_block_output(&req);
     memset(&req, 0, sizeof(req));  // sanitise request data
     return statusWord;
 }
 
-uint16_t libn_apdu_cache_block_output(libn_apdu_response_t *resp, libn_apdu_cache_block_request_t *req) {
+uint16_t libn_apdu_cache_block_output(libn_apdu_cache_block_request_t *req) {
     // Copy the data over to the cache
     memset(&libn_context_D.cachedBlock, 0, sizeof(libn_context_D.cachedBlock));
     memmove(libn_context_D.cachedBlock.representative,

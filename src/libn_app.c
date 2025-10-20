@@ -38,6 +38,7 @@ void app_dispatch(void) {
     uint8_t dispatched;
     uint16_t statusWord;
     uint32_t apduHash;
+    bool apduHashSet = false;
     libn_apdu_response_t *resp = &libn_context_D.response;
 
     // nothing to reply for now
@@ -56,6 +57,7 @@ void app_dispatch(void) {
 #ifdef HAVE_IO_U2F
             if (G_io_apdu_state == APDU_U2F) {
                 apduHash = libn_simple_hash(G_io_apdu_buffer, libn_context_D.inLength);
+                apduHashSet = true;
                 if (apduHash == libn_context_D.u2fRequestHash) {
                     if (libn_context_D.state != LIBN_STATE_READY) {
                         // Request ongoing, setup a timeout
@@ -97,7 +99,8 @@ void app_dispatch(void) {
             statusWord = ((apduProcessingFunction) PIC(DISPATCHER_FUNCTIONS[dispatched]))(resp);
 
 #ifdef HAVE_IO_U2F
-            if (G_io_apdu_state == APDU_U2F && (resp->ioFlags & IO_ASYNCH_REPLY) != 0) {
+            if (G_io_apdu_state == APDU_U2F && (resp->ioFlags & IO_ASYNCH_REPLY) != 0 &&
+                apduHashSet) {
                 // Setup the timeout and request details
                 libn_context_D.u2fRequestHash = apduHash;
                 libn_context_D.u2fTimeout = U2F_REQUEST_TIMEOUT;
@@ -138,7 +141,7 @@ void app_async_response(libn_apdu_response_t *resp, uint16_t statusWord) {
     app_apply_state();
 }
 
-bool app_send_async_response(libn_apdu_response_t *resp) {
+bool app_send_async_response() {
 #ifdef HAVE_IO_U2F
     if (G_io_apdu_state == APDU_IDLE) {
         return false;
@@ -168,7 +171,7 @@ bool app_apply_state(void) {
     // In READY state, try to return the queued asyncResponse
     if (libn_context_D.state == LIBN_STATE_READY &&
         libn_context_D.stateData.asyncResponse.outLength > 0) {
-        bool responseSent = app_send_async_response(&libn_context_D.stateData.asyncResponse);
+        bool responseSent = app_send_async_response();
         if (responseSent) {
             return true;
         }
@@ -253,11 +256,7 @@ void u2f_message_timeout() {
     G_io_app.apdu_media = IO_APDU_MEDIA_NONE;
 #else
     G_io_apdu_state = APDU_IDLE;
-#if CX_APILEVEL < 10
-    G_io_apdu_length = 0;
-#else
     G_io_app.apdu_length = 0;
-#endif
     G_io_apdu_media = IO_APDU_MEDIA_NONE;
 #endif
 }
@@ -296,6 +295,7 @@ uint16_t io_exchange_al(uint8_t channel, uint16_t tx_len) {
 
 uint8_t io_event(uint8_t channel) {
     // nothing done with event, throw error on transport layer if needed
+    UNUSED(channel);
 
     // no more than one tag in the reply, not yet supported
     switch (G_io_seproxyhal_spi_buffer[0]) {
@@ -313,6 +313,7 @@ uint8_t io_event(uint8_t channel) {
                   SEPROXYHAL_TAG_STATUS_EVENT_FLAG_USB_POWERED)) {
                 THROW(EXCEPTION_IO_RESET);
             }
+            __attribute__((fallthrough));
         // no break is intentional
         default:
             UX_DEFAULT_EVENT();

@@ -116,6 +116,11 @@ void menu_settings_autoreceive_init(uint32_t ignored) {
     UX_MENU_DISPLAY(N_libn.autoReceive ? 1 : 0, menu_settings_autoreceive, NULL);
 }
 
+void menu_quit_app(unsigned int ignored) {
+    UNUSED(ignored);
+    os_sched_exit(0);
+}
+
 const ux_menu_entry_t menu_settings_autoreceive[] = {
     {NULL, menu_settings_autoreceive_change, 0, NULL, "No", NULL, 0, 0},
     {NULL, menu_settings_autoreceive_change, 1, NULL, "Yes", NULL, 0, 0},
@@ -138,7 +143,7 @@ const ux_menu_entry_t menu_main[] = {
     {NULL, NULL, 0xBA, &C_nanos_badge_nano, "Use wallet to", "view accounts", 33, 12},
     {menu_settings, NULL, 0, NULL, "Settings", NULL, 0, 0},
     {menu_about, NULL, 0, NULL, "About", NULL, 0, 0},
-    {NULL, os_sched_exit, 0, &C_nanos_icon_dashboard, "Quit app", NULL, 50, 29},
+    {NULL, menu_quit_app, 0, &C_nanos_icon_dashboard, "Quit app", NULL, 50, 29},
     UX_MENU_END};
 
 void libn_bagl_idle(void) {
@@ -284,6 +289,8 @@ const bagl_element_t *ui_display_address_prepro(const bagl_element_t *element) {
 }
 
 uint32_t ui_display_address_button(uint32_t button_mask, uint32_t button_mask_counter) {
+    UNUSED(button_mask_counter);
+
     switch (button_mask) {
         case BUTTON_EVT_RELEASED | BUTTON_LEFT:
             libn_bagl_display_address_callback(false);
@@ -511,6 +518,8 @@ const bagl_element_t *ui_confirm_sign_block_prepro(const bagl_element_t *element
 }
 
 uint32_t ui_confirm_sign_block_button(uint32_t button_mask, uint32_t button_mask_counter) {
+    UNUSED(button_mask_counter);
+
     switch (button_mask) {
         case BUTTON_EVT_RELEASED | BUTTON_LEFT:
             libn_bagl_confirm_sign_block_callback(false);

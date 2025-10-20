@@ -56,17 +56,11 @@ uint32_t libn_simple_hash(uint8_t *data, size_t dataLen);
 
 void libn_hash_block(libn_hash_t hash, const libn_block_data_t *data, const libn_public_key_t pub);
 
-void libn_sign_hash(libn_signature_t sig,
-                    const libn_hash_t hash,
-                    const libn_private_key_t prv,
-                    const libn_public_key_t pub);
+void libn_sign_hash(libn_signature_t sig, const libn_hash_t hash, const libn_private_key_t prv);
 bool libn_verify_hash_signature(const libn_hash_t hash,
                                 const libn_public_key_t pub,
                                 const libn_signature_t sig);
 
-void libn_sign_nonce(libn_signature_t sig,
-                     const libn_nonce_t nonce,
-                     const libn_private_key_t prv,
-                     const libn_public_key_t pub);
+void libn_sign_nonce(libn_signature_t sig, const libn_nonce_t nonce, const libn_private_key_t prv);
 
 #endif

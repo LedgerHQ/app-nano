@@ -86,12 +86,12 @@ typedef struct {
 } libn_coin_conf_t;
 
 typedef struct {
-    char *prefix;
+    const char *prefix;
     uint8_t prefixLen;
 } libn_address_formatter_t;
 
 typedef struct {
-    char *suffix;
+    const char *suffix;
     uint8_t suffixLen;
     uint8_t unitScale;
 } libn_amount_formatter_t;

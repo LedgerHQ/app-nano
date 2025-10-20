@@ -168,7 +168,7 @@ size_t libn_address_format(const libn_address_formatter_t *fmt,
     uint8_t check[5] = {0, 0, 0, 0, 0};
     blake2b_ctx ctx;
 
-    blake2b_init(&ctx, sizeof(check), NULL, 0);
+    blake2b_init(&ctx, sizeof(check));
     blake2b_update(&ctx, pub, sizeof(libn_public_key_t));
     blake2b_final(&ctx, check);
 
@@ -362,6 +362,7 @@ void libn_derive_keypair(uint8_t *bip32Path,
     uint8_t bip32PathLength;
     uint8_t i;
     const uint8_t bip32PrefixLength = 2;
+    cx_err_t result;
 
     bip32PathLength = bip32Path[0];
     if (bip32PathLength > MAX_BIP32_PATH) {
@@ -381,7 +382,7 @@ void libn_derive_keypair(uint8_t *bip32Path,
             THROW(INVALID_PARAMETER);
         }
     }
-    os_derive_bip32_with_seed_no_throw(HDW_ED25519_SLIP10,
+    result = os_derive_bip32_with_seed_no_throw(HDW_ED25519_SLIP10,
                                                 LIBN_CURVE,
                                                 bip32PathInt,
                                                 bip32PathLength,
@@ -389,6 +390,9 @@ void libn_derive_keypair(uint8_t *bip32Path,
                                                 chainCode,
                                                 (unsigned char *) LIBN_SEED_KEY,
                                                 sizeof(LIBN_SEED_KEY));
+    if (result != CX_OK) {
+        THROW(result);
+    }
     memset(chainCode, 0, sizeof(chainCode));
 
     if (out_pub != NULL) {
@@ -407,7 +411,7 @@ uint32_t libn_simple_hash(uint8_t *data, size_t dataLen) {
 void libn_hash_block(libn_hash_t hash, const libn_block_data_t *data, const libn_public_key_t pub) {
     blake2b_ctx ctx;
 
-    blake2b_init(&ctx, sizeof(libn_hash_t), NULL, 0);
+    blake2b_init(&ctx, sizeof(libn_hash_t));
     blake2b_update(&ctx, BLOCK_HASH_PREAMBLE, sizeof(BLOCK_HASH_PREAMBLE));
     blake2b_update(&ctx, pub, sizeof(libn_public_key_t));
     blake2b_update(&ctx, data->parent, sizeof(data->parent));
@@ -417,11 +421,8 @@ void libn_hash_block(libn_hash_t hash, const libn_block_data_t *data, const libn
     blake2b_final(&ctx, hash);
 }
 
-void libn_sign_hash(libn_signature_t sig,
-                    const libn_hash_t hash,
-                    const libn_private_key_t prv,
-                    const libn_public_key_t pub) {
-    ed25519_sign(hash, sizeof(libn_hash_t), prv, pub, sig);
+void libn_sign_hash(libn_signature_t sig, const libn_hash_t hash, const libn_private_key_t prv) {
+    ed25519_sign(hash, sizeof(libn_hash_t), prv, sig);
 }
 
 bool libn_verify_hash_signature(const libn_hash_t hash,
@@ -430,10 +431,7 @@ bool libn_verify_hash_signature(const libn_hash_t hash,
     return ed25519_sign_open(hash, sizeof(libn_hash_t), pub, sig);
 }
 
-void libn_sign_nonce(libn_signature_t sig,
-                     const libn_nonce_t nonce,
-                     const libn_private_key_t prv,
-                    const libn_public_key_t pub) {
+void libn_sign_nonce(libn_signature_t sig, const libn_nonce_t nonce, const libn_private_key_t prv) {
     uint8_t msg[sizeof(COIN_NAME) + sizeof(NONCE_PREAMBLE) + 2 * sizeof(libn_nonce_t)];
     size_t len;
 
@@ -452,5 +450,5 @@ void libn_sign_nonce(libn_signature_t sig,
     ptr += 2 * sizeof(libn_nonce_t);
 
     len = ptr - msg;
-    ed25519_sign(msg, len, prv, pub, sig);
+    ed25519_sign(msg, len, prv, sig);
 }
