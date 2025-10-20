@@ -173,7 +173,7 @@ size_t libn_address_format(const libn_address_formatter_t *fmt,
     blake2b_final(&ctx, check);
 
     // Write prefix
-    os_memmove(buffer, fmt->prefix, fmt->prefixLen);
+    memmove(buffer, fmt->prefix, fmt->prefixLen);
     buffer += fmt->prefixLen;
 
 // Helper macro to create a virtual array of check and public key variables
@@ -255,8 +255,8 @@ void libn_amount_format(const libn_amount_formatter_t *fmt,
              + sizeof((libn_coin_conf_t){}.defaultUnit) + 1 /* '\0' NULL terminator */];
     libn_amount_t num;
 
-    os_memset(buf, 0, sizeof(buf));
-    os_memmove(num, balance, sizeof(num));
+    memset(buf, 0, sizeof(buf));
+    memmove(num, balance, sizeof(num));
 
     size_t end = sizeof(buf);
     end -= 1;                   // '\0' NULL terminator
@@ -345,12 +345,12 @@ void libn_amount_format(const libn_amount_formatter_t *fmt,
 
     // Append the unit
     buf[end++] = ' ';
-    os_memmove(buf + end, fmt->suffix, fmt->suffixLen);
+    memmove(buf + end, fmt->suffix, fmt->suffixLen);
     end += fmt->suffixLen;
     buf[end] = '\0';
 
     // Copy the result to the destination buffer
-    os_memmove(dest, buf + start, MIN(destLen - 1, end - start + 1));
+    memmove(dest, buf + start, MIN(destLen - 1, end - start + 1));
     dest[destLen - 1] = '\0';
 }
 
@@ -381,7 +381,7 @@ void libn_derive_keypair(uint8_t *bip32Path,
             THROW(INVALID_PARAMETER);
         }
     }
-    os_perso_derive_node_bip32_seed_key(HDW_ED25519_SLIP10,
+    os_derive_bip32_with_seed_no_throw(HDW_ED25519_SLIP10,
                                                 LIBN_CURVE,
                                                 bip32PathInt,
                                                 bip32PathLength,
@@ -389,7 +389,7 @@ void libn_derive_keypair(uint8_t *bip32Path,
                                                 chainCode,
                                                 (unsigned char *) LIBN_SEED_KEY,
                                                 sizeof(LIBN_SEED_KEY));
-    os_memset(chainCode, 0, sizeof(chainCode));
+    memset(chainCode, 0, sizeof(chainCode));
 
     if (out_pub != NULL) {
         ed25519_publickey(out_prv, out_pub);
@@ -427,7 +427,7 @@ void libn_sign_hash(libn_signature_t sig,
 bool libn_verify_hash_signature(const libn_hash_t hash,
                                 const libn_public_key_t pub,
                                 const libn_signature_t sig) {
-    return ed25519_sign_open(hash, sizeof(libn_hash_t), pub, sig) == 0;
+    return ed25519_sign_open(hash, sizeof(libn_hash_t), pub, sig);
 }
 
 void libn_sign_nonce(libn_signature_t sig,
@@ -442,10 +442,10 @@ void libn_sign_nonce(libn_signature_t sig,
     uint8_t *ptr = msg;
     // Append the coin name
     len = strnlen(COIN_NAME, sizeof(COIN_NAME));
-    os_memmove(ptr, COIN_NAME, len);
+    memmove(ptr, COIN_NAME, len);
     ptr += len;
     // Apend the " Signed Nonce:\n"
-    os_memmove(ptr, NONCE_PREAMBLE, sizeof(NONCE_PREAMBLE));
+    memmove(ptr, NONCE_PREAMBLE, sizeof(NONCE_PREAMBLE));
     ptr += sizeof(NONCE_PREAMBLE);
     // Append the nonce
     libn_write_hex_string(ptr, nonce, sizeof(libn_nonce_t));

@@ -63,7 +63,7 @@ uint16_t libn_apdu_get_app_conf_output(libn_apdu_response_t *resp) {
     // Output coin name
     length = strnlen(COIN_NAME, sizeof(COIN_NAME));
     *outPtr = length;
-    os_memmove(outPtr + 1, COIN_NAME, length);
+    memmove(outPtr + 1, COIN_NAME, length);
     outPtr += 1 + length;
 
     resp->outLength = outPtr - resp->buffer;

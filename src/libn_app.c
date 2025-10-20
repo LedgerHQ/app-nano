@@ -134,7 +134,7 @@ void app_async_response(libn_apdu_response_t *resp, uint16_t statusWord) {
 
     // Queue up the response to be sent when convenient
     libn_context_D.state = LIBN_STATE_READY;
-    os_memmove(&libn_context_D.stateData.asyncResponse, resp, sizeof(libn_apdu_response_t));
+    memmove(&libn_context_D.stateData.asyncResponse, resp, sizeof(libn_apdu_response_t));
     app_apply_state();
 }
 
@@ -198,7 +198,7 @@ void app_init(void) {
 }
 
 void app_main(void) {
-    os_memset(libn_context_D.response.buffer, 0, 255);  // paranoia
+    memset(libn_context_D.response.buffer, 0, 255);  // paranoia
 
     // Process the incoming APDUs
 
@@ -208,7 +208,7 @@ void app_main(void) {
     for (;;) {
         L_DEBUG_APP(("Main Loop\n"));
 
-        // os_memset(G_io_apdu_buffer, 0, 255); // paranoia
+        // memset(G_io_apdu_buffer, 0, 255); // paranoia
 
         // receive the whole apdu using the 7 bytes headers (ledger transport)
         libn_context_D.inLength = io_exchange(CHANNEL_APDU | libn_context_D.response.ioFlags,

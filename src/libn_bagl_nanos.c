@@ -57,8 +57,8 @@ void ui_write_address_truncated(const libn_address_formatter_t *fmt,
     const size_t addressLen = libn_address_format(fmt, (uint8_t *) label, publicKey);
     const size_t prefixLen = addressLen - LIBN_ACCOUNT_STRING_BASE_LEN;
 
-    os_memset(label + prefixLen + 5, '.', 2);
-    os_memmove(label + prefixLen + 7, label + addressLen - 5, 5);
+    memset(label + prefixLen + 5, '.', 2);
+    memmove(label + prefixLen + 7, label + addressLen - 5, 5);
     label[prefixLen + 12] = '\0';
 }
 
@@ -72,8 +72,8 @@ void ui_write_address_full(const libn_address_formatter_t *fmt,
 void ui_write_hash_truncated(char *label, libn_hash_t hash) {
     libn_write_hex_string((uint8_t *) label, hash, sizeof(libn_hash_t));
     // Truncate hash to 12345..67890 format
-    os_memset(label + 5, '.', 2);
-    os_memmove(label + 7, label + 2 * sizeof(libn_hash_t) - 5, 5);
+    memset(label + 5, '.', 2);
+    memmove(label + 7, label + 2 * sizeof(libn_hash_t) - 5, 5);
     label[12] = '\0';
 }
 
@@ -306,7 +306,7 @@ void libn_bagl_display_address(void) {
     }
     libn_apdu_get_address_request_t *req = &libn_context_D.stateData.getAddressRequest;
 
-    os_memset(&vars.displayAddress, 0, sizeof(vars.displayAddress));
+    memset(&vars.displayAddress, 0, sizeof(vars.displayAddress));
     // Encode public key into an address string
     ui_write_address_full(&req->addressFormatter, vars.displayAddress.account, req->publicKey);
 
@@ -533,7 +533,7 @@ void libn_bagl_confirm_sign_block(void) {
     }
     libn_apdu_sign_block_request_t *req = &libn_context_D.stateData.signBlockRequest;
 
-    os_memset(&vars.confirmSignBlock, 0, sizeof(vars.confirmSignBlock));
+    memset(&vars.confirmSignBlock, 0, sizeof(vars.confirmSignBlock));
 
     if (!libn_is_zero(req->amount, sizeof(req->amount))) {
         vars.confirmSignBlock.showAmount = true;

@@ -12,7 +12,7 @@ void ed25519_sign(const uint8_t *m,
                       const libn_public_key_t pub,
                       libn_signature_t sig);
 
-int ed25519_sign_open(const uint8_t *m,
+bool ed25519_sign_open(const uint8_t *m,
                        size_t mlen,
                        const libn_public_key_t pub,
                        const libn_signature_t sig);
