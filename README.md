@@ -1,19 +1,19 @@
-# blue-app-nano
+# ledger-app-nano
 
-$NANO wallet application for Ledger Nano S & Ledger Blue devices.
+Nano ($XNO) wallet application for Ledger Nano S, Ledger Nano S+, and Ledger Blue devices.
 
 ## For users
 
-You can install the Nano app from the Ledger Manager. If it doesn't show up for you in Ledger Manager, make sure that your Ledger device firmware has been upgraded to the latest version. See also the Ledger own [guide on installing and using the app](https://support.ledgerwallet.com/hc/en-us/articles/360005459013-Install-and-use-Nano).
+Install the Nano app from the Ledger Live device manager. See Ledger's [guide on installing apps](https://support.ledger.com/article/4404382258961-zd).
 
-To interact with the Nano network, you need to use a wallet software that has integrated Ledger support. Currently the following wallets have integrated Ledger support:
+Interacting with the Nano network requires wallet software with integrated Ledger support.
 
 - [Nault.cc](https://nault.cc/) ([user guide](https://docs.nault.cc/2020/08/04/ledger-guide.html))
 
-_If a wallet is missing from above, please [create an issue](https://github.com/roosmaa/blue-app-nano/issues/new) and it will be added to this list._
+_If a wallet should be added to this list, please [create an issue](https://github.com/LedgerHQ/app-nano/issues/new)._
 
-## For wallet developers
+## For developers
 
-If you wish to integrate your $NANO web wallet with Ledger, then you can use the [hw-app-nano](https://github.com/roosmaa/hw-app-nano/) JavaScript library that works in tandem with [ledgerjs](https://github.com/LedgerHQ/ledgerjs) library.
+Browser-based wallets can integrate Ledger device support using the [hw-app-nano](https://github.com/roosmaa/hw-app-nano/) JavaScript library built using [LedgerJS](https://github.com/LedgerHQ/ledger-live/tree/develop/libs/ledgerjs).
 
-For desktop wallet apps, there is no integration library at the time. But you can still interact with the device using the binary protocol detailed in [the ADPU documentation](https://github.com/roosmaa/blue-app-nano/blob/master/doc/nano.md).
+Wallets of any type can interact with the device directly using the binary protocol detailed in the [ADPU documentation](https://github.com/LedgerHQ/app-nano/blob/master/doc/nano.md).
