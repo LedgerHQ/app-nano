@@ -53,11 +53,11 @@ uint16_t libn_apdu_get_app_conf_output(libn_apdu_response_t *resp) {
     uint8_t length;
 
     // Output app version
-    *outPtr = APP_MAJOR_VERSION;
+    *outPtr = MAJOR_VERSION;
     outPtr += 1;
-    *outPtr = APP_MINOR_VERSION;
+    *outPtr = MINOR_VERSION;
     outPtr += 1;
-    *outPtr = APP_PATCH_VERSION;
+    *outPtr = PATCH_VERSION;
     outPtr += 1;
 
     // Output coin name

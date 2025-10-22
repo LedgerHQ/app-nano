@@ -16,4 +16,4 @@ _If a wallet should be added to this list, please [create an issue](https://gith
 
 Browser-based wallets can integrate Ledger device support using the [hw-app-nano](https://github.com/roosmaa/hw-app-nano/) JavaScript library built using [LedgerJS](https://github.com/LedgerHQ/ledger-live/tree/develop/libs/ledgerjs).
 
-Wallets of any type can interact with the device directly using the binary protocol detailed in the [ADPU documentation](https://github.com/LedgerHQ/app-nano/blob/master/doc/nano.md).
+Wallets of any type can interact with the device directly using the binary protocol detailed in the [APDU documentation](https://github.com/LedgerHQ/app-nano/blob/master/doc/nano.md).

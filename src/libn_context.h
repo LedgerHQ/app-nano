@@ -50,16 +50,6 @@ typedef struct {
         // when LIBN_STATE_CONFIRM_SIGNATURE
         libn_apdu_sign_block_request_t signBlockRequest;
     } stateData;
-
-#ifdef HAVE_IO_U2F
-    /** U2F async request hash that is used to keep track and hook back
-        into an async operation. **/
-    uint32_t u2fRequestHash;
-    /** U2F timeout tracker, once zero the active connection is dropped
-        appropriate status code. **/
-    uint16_t u2fTimeout;
-#endif  // HAVE_IO_U2F
-
 } libn_context_t;
 
 void libn_context_init(void);

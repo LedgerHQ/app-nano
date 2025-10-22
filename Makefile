@@ -108,12 +108,7 @@ ifeq (customCA.key,$(wildcard customCA.key))
     SCP_PRIVKEY=`cat customCA.key`
 endif
 
-# Default to shared app
-ifeq ($(APP_TYPE),)
-APP_TYPE=shared
-endif
-
-# Default to library app
+# Default to Nano app
 ifndef COIN
 COIN=nano
 endif
@@ -121,6 +116,7 @@ endif
 APP_LOAD_PARAMS = --curve ed25519 $(COMMON_LOAD_PARAMS)
 ALL_PATH_PARAMS =
 
+MAX_APDU_OUTPUT_SIZE=98
 
 #####################################################################
 #                           COIN CONFIG                             #
@@ -140,46 +136,23 @@ NOS_PATH_PARAM = --path "44'/229'"
 NOS_COIN_TYPE = LIBN_COIN_TYPE_NOS
 ALL_PATH_PARAMS += $(NOS_PATH_PARAM)
 
-ifeq ($(APP_TYPE), standalone)
-    DEFINES += IS_STANDALONE_APP
-else ifeq ($(APP_TYPE), shared)
-    DEFINES += SHARED_LIBRARY_NAME=\"$(NANO_APP_NAME)\"
-    DEFINES += HAVE_COIN_NANO
-    DEFINES += HAVE_COIN_BANANO
-    DEFINES += HAVE_COIN_NOS
-else ifneq ($(MAKECMDGOALS),listvariants)
-    $(error Unsupported APP_TYPE - use standalone, shared)
-endif
-
 ifeq ($(COIN),nano)
     APPNAME = $(NANO_APP_NAME)
-    DEFINES += HAVE_COIN_NANO
+    APP_LOAD_PARAMS += $(ALL_PATH_PARAMS)
     DEFINES += DEFAULT_COIN_TYPE=$(NANO_COIN_TYPE)
-    ifeq ($(APP_TYPE), shared)
-        APP_LOAD_PARAMS += $(ALL_PATH_PARAMS)
-        HAVE_APPLICATION_FLAG_LIBRARY = 1
-        DEFINES += IS_SHARED_LIBRARY
-    else
-        APP_LOAD_PARAMS += $(NANO_PATH_PARAM)
-    endif
 else ifeq ($(COIN),banano)
     APPNAME = $(BANANO_APP_NAME)
     APP_LOAD_PARAMS += $(BANANO_PATH_PARAM)
     DEP_APP_LOAD_PARAMS := $(NANO_APP_NAME)
-    DEFINES += HAVE_COIN_BANANO
     DEFINES += DEFAULT_COIN_TYPE=$(BANANO_COIN_TYPE)
 else ifeq ($(COIN),nos)
     APPNAME = $(NOS_APP_NAME)
     APP_LOAD_PARAMS += $(NOS_PATH_PARAM)
     DEP_APP_LOAD_PARAMS := $(NANO_APP_NAME)
-    DEFINES += HAVE_COIN_NOS
     DEFINES += DEFAULT_COIN_TYPE=$(NOS_COIN_TYPE)
 else ifeq ($(filter clean listvariants,$(MAKECMDGOALS)),)
     $(error Unsupported COIN - use nano, banano, nos)
 endif
-
-MAX_ADPU_INPUT_SIZE=217
-MAX_ADPU_OUTPUT_SIZE=98
 
 #####################################################################
 #                               MISC                                #
@@ -201,75 +174,21 @@ all: default
 ############
 # Platform #
 ############
-DEFINES   += OS_IO_SEPROXYHAL
-DEFINES   += HAVE_BAGL HAVE_SPRINTF
-DEFINES   += HAVE_IO_USB HAVE_L4_USBLIB IO_USB_MAX_ENDPOINTS=4 IO_HID_EP_LENGTH=64 HAVE_USB_APDU
-DEFINES   += APP_MAJOR_VERSION=$(APPVERSION_M) APP_MINOR_VERSION=$(APPVERSION_N) APP_PATCH_VERSION=$(APPVERSION_P)
-DEFINES   += MAX_ADPU_OUTPUT_SIZE=$(MAX_ADPU_OUTPUT_SIZE)
+DEFINES   += HAVE_BAGL
+DEFINES   += IO_HID_EP_LENGTH=64
+DEFINES   += MAX_APDU_OUTPUT_SIZE=$(MAX_APDU_OUTPUT_SIZE)
 
-# U2F
-DEFINES   += HAVE_IO_U2F
-DEFINES   += U2F_PROXY_MAGIC=\"mRB\"
-DEFINES   += USB_SEGMENT_SIZE=64
-DEFINES   += BLE_SEGMENT_SIZE=32 #max MTU, min 20
-DEFINES   += U2F_REQUEST_TIMEOUT=10000 # 10 seconds
-DEFINES   += UNUSED\(x\)=\(void\)x
-DEFINES   += APPVERSION=\"$(APPVERSION)\"
-
-# WebUSB
-#WEBUSB_URL = www.ledgerwallet.com
-#DEFINES   += HAVE_WEBUSB WEBUSB_URL_SIZE_B=$(shell echo -n $(WEBUSB_URL) | wc -c) WEBUSB_URL=$(shell echo -n $(WEBUSB_URL) | sed -e "s/./\\\'\0\\\',/g")
-DEFINES   += HAVE_WEBUSB WEBUSB_URL_SIZE_B=0 WEBUSB_URL=""
-
-# Enabling debug PRINTF
-DEBUG = 0
+#####################################################################
+#                               DEBUG                               #
+#####################################################################
 ifneq ($(DEBUG),0)
-        ifeq ($(TARGET_NAME),TARGET_NANOS)
-                DEFINES   += HAVE_PRINTF PRINTF=screen_printf
-        else
-                DEFINES   += HAVE_PRINTF PRINTF=mcu_usb_printf
-        endif
-else
-        DEFINES   += PRINTF\(...\)=
+    ifeq ($(TARGET_NAME),TARGET_NANOS)
+        DEFINES += PRINTF=screen_printf
+    endif
 endif
-
-############
-# Compiler #
-############
-ifneq ($(BOLOS_ENV),)
-$(info BOLOS_ENV=$(BOLOS_ENV))
-CLANGPATH := $(BOLOS_ENV)/clang-arm-fropi/bin/
-GCCPATH := $(BOLOS_ENV)/gcc-arm-none-eabi-5_3-2016q1/bin/
-else
-$(info BOLOS_ENV is not set: falling back to CLANGPATH and GCCPATH)
-endif
-ifeq ($(CLANGPATH),)
-$(info CLANGPATH is not set: clang will be used from PATH)
-endif
-ifeq ($(GCCPATH),)
-$(info GCCPATH is not set: arm-none-eabi-* will be used from PATH)
-endif
-
-CC       := $(CLANGPATH)clang
-
-#CFLAGS   += -O0
-CFLAGS   += -O3 -Os -Wno-typedef-redefinition
-
-AS     := $(GCCPATH)arm-none-eabi-gcc
-
-LD       := $(GCCPATH)arm-none-eabi-gcc
-LDFLAGS  += -O3 -Os
-LDLIBS   += -lm -lgcc -lc
 
 # variables processed by the common makefile.rules of the SDK to grab source files and include dirs
-SDK_SOURCE_PATH  += lib_stusb
-SDK_SOURCE_PATH  += lib_stusb_impl
-SDK_SOURCE_PATH  += lib_u2f
-SDK_SOURCE_PATH  += lib_ux
-
-ifeq ($(TARGET_NAME),TARGET_NANOX)
-SDK_SOURCE_PATH  += lib_blewbxx lib_blewbxx_impl
-endif
+SDK_SOURCE_PATH += lib_ux
 
 # add dependency on custom makefile filename
 dep/%.d: %.c Makefile

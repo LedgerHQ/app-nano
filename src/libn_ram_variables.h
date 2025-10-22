@@ -24,8 +24,8 @@
 
 #include "libn_context.h"
 
-/** Buffer used for asynchronous response data **/
-extern uint8_t libn_async_buffer_D[MAX_ADPU_OUTPUT_SIZE + 2 /* status word */];
+/* Buffer used for asynchronous response data + status word */
+extern uint8_t libn_async_buffer_D[MAX_APDU_OUTPUT_SIZE + 2];
 extern libn_context_t libn_context_D;
 
 #endif  // LIBN_PUBLIC_RAM_VARIABLES_H

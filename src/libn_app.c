@@ -22,13 +22,6 @@
 #include "libn_apdu_constants.h"
 #include "libn_bagl.h"
 
-#ifdef HAVE_IO_U2F
-
-#include "u2f_transport.h"
-#include "u2f_processing.h"
-extern u2f_service_t G_io_u2f;
-#endif  // HAVE_IO_U2F
-
 void libn_bagl_idle(void);
 void ui_ticker_event(bool uxAllowed);
 
@@ -37,8 +30,6 @@ void app_dispatch(void) {
     uint8_t ins;
     uint8_t dispatched;
     uint16_t statusWord;
-    uint32_t apduHash;
-    bool apduHashSet = false;
     libn_apdu_response_t *resp = &libn_context_D.response;
 
     // nothing to reply for now
@@ -53,28 +44,6 @@ void app_dispatch(void) {
                 statusWord = LIBN_SW_HALTED;
                 goto sendSW;
             }
-
-#ifdef HAVE_IO_U2F
-            if (G_io_apdu_state == APDU_U2F) {
-                apduHash = libn_simple_hash(G_io_apdu_buffer, libn_context_D.inLength);
-                apduHashSet = true;
-                if (apduHash == libn_context_D.u2fRequestHash) {
-                    if (libn_context_D.state != LIBN_STATE_READY) {
-                        // Request ongoing, setup a timeout
-                        libn_context_D.u2fTimeout = U2F_REQUEST_TIMEOUT;
-
-                        resp->ioFlags |= IO_ASYNCH_REPLY;
-                        statusWord = LIBN_SW_OK;
-                        goto sendSW;
-
-                    } else if (libn_context_D.stateData.asyncResponse.outLength > 0) {
-                        // Immediately return the previous response to this request
-                        libn_context_move_async_response();
-                        goto sendBuffer;
-                    }
-                }
-            }
-#endif  // HAVE_IO_U2F
 
             cla = G_io_apdu_buffer[ISO_OFFSET_CLA];
             ins = G_io_apdu_buffer[ISO_OFFSET_INS];
@@ -98,21 +67,11 @@ void app_dispatch(void) {
             // call the apdu handler
             statusWord = ((apduProcessingFunction) PIC(DISPATCHER_FUNCTIONS[dispatched]))(resp);
 
-#ifdef HAVE_IO_U2F
-            if (G_io_apdu_state == APDU_U2F && (resp->ioFlags & IO_ASYNCH_REPLY) != 0 &&
-                apduHashSet) {
-                // Setup the timeout and request details
-                libn_context_D.u2fRequestHash = apduHash;
-                libn_context_D.u2fTimeout = U2F_REQUEST_TIMEOUT;
-            }
-#endif  // HAVE_IO_U2F
-
         sendSW:
             // prepare SW after replied data
             resp->buffer[resp->outLength] = (statusWord >> 8);
             resp->buffer[resp->outLength + 1] = (statusWord & 0xff);
             resp->outLength += 2;
-        sendBuffer: {}
         }
         CATCH_L(dispatch, EXCEPTION_IO_RESET) {
             THROW(EXCEPTION_IO_RESET);
@@ -142,17 +101,8 @@ void app_async_response(libn_apdu_response_t *resp, uint16_t statusWord) {
 }
 
 bool app_send_async_response() {
-#ifdef HAVE_IO_U2F
-    if (G_io_apdu_state == APDU_IDLE) {
-        return false;
-    }
-
-    libn_context_D.u2fTimeout = 0;
-#endif  // HAVE_IO_U2F
-
     // Move the async result data to sync buffer
     libn_context_move_async_response();
-
     io_exchange(CHANNEL_APDU | IO_RETURN_AFTER_TX, libn_context_D.response.outLength);
     return true;
 }
@@ -240,29 +190,6 @@ void app_exit(void) {
     END_TRY_L(exit);
 }
 
-#ifdef HAVE_IO_U2F
-
-void u2f_message_timeout() {
-    libn_context_D.u2fTimeout = 0;
-
-    G_io_apdu_buffer[0] = 0x69;
-    G_io_apdu_buffer[1] = 0x85;
-    u2f_message_reply(&G_io_u2f, U2F_CMD_MSG, G_io_apdu_buffer, 2);
-
-// reset apdu state
-#if defined(TARGET_NANOX) || defined(TARGET_NANOS2)
-    G_io_app.apdu_state = APDU_IDLE;
-    G_io_app.apdu_length = 0;
-    G_io_app.apdu_media = IO_APDU_MEDIA_NONE;
-#else
-    G_io_apdu_state = APDU_IDLE;
-    G_io_app.apdu_length = 0;
-    G_io_apdu_media = IO_APDU_MEDIA_NONE;
-#endif
-}
-
-#endif  // HAVE_IO_U2F
-
 // override point, but nothing more to do
 void io_seproxyhal_display(const bagl_element_t *element) {
     io_seproxyhal_display_default((bagl_element_t *) element);
@@ -328,17 +255,6 @@ uint8_t io_event(uint8_t channel) {
                 // Apply caused changed, nothing else to do this cycle
                 break;
             }
-
-#ifdef HAVE_IO_U2F
-            if (libn_context_D.u2fTimeout > 0) {
-                libn_context_D.u2fTimeout -= MIN(100, libn_context_D.u2fTimeout);
-                if (libn_context_D.u2fTimeout == 0) {
-                    u2f_message_timeout();
-                    break;
-                }
-            }
-#endif  // HAVE_IO_U2F
-
             UX_TICKER_EVENT(G_io_seproxyhal_spi_buffer, { ui_ticker_event(UX_ALLOWED); });
             break;
     }

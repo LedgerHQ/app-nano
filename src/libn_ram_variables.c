@@ -21,6 +21,6 @@
 
 ux_state_t ux;
 
-uint8_t libn_async_buffer_D[MAX_ADPU_OUTPUT_SIZE + 2 /* status word */];
+uint8_t libn_async_buffer_D[MAX_APDU_OUTPUT_SIZE + 2];
 
 libn_context_t libn_context_D;
