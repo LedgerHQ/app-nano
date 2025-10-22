@@ -36,6 +36,16 @@ APPVERSION = "$(APPVERSION_M).$(APPVERSION_N).$(APPVERSION_P)"
 # Application source files
 APP_SOURCE_PATH += src
 
+# Application icons following guidelines:
+# https://developers.ledger.com/docs/embedded-app/design-requirements/#device-icon
+ICON_NANOX = icons/$(COIN)_14px.gif
+ICON_NANOSP = icons/$(COIN)_14px.gif
+ICON_NANOS = icons/$(COIN)_16px.gif
+#ICON_STAX = icons/app_boilerplate_32px.gif
+#ICON_FLEX = icons/app_boilerplate_40px.gif
+ICON_BLUE = icons/${COIN}_50px.gif
+#ICON_APEX_P = icons/app_boilerplate_32px_apex.png
+
 # Setting to allow building variant applications
 # - <VARIANT_PARAM> is the name of the parameter which should be set
 #   to specify the variant that should be build.
@@ -111,19 +121,20 @@ endif
 APP_LOAD_PARAMS = --curve ed25519 $(COMMON_LOAD_PARAMS)
 ALL_PATH_PARAMS =
 
-# Nano coin config
+
+#####################################################################
+#                           COIN CONFIG                             #
+#####################################################################
 NANO_APP_NAME = "Nano"
 NANO_PATH_PARAM = --path "44'/165'"
 NANO_COIN_TYPE = LIBN_COIN_TYPE_NANO
 ALL_PATH_PARAMS += $(NANO_PATH_PARAM)
 
-# Banano coin config
 BANANO_APP_NAME = "Banano"
 BANANO_PATH_PARAM = --path "44'/198'"
 BANANO_COIN_TYPE = LIBN_COIN_TYPE_BANANO
 ALL_PATH_PARAMS += $(BANANO_PATH_PARAM)
 
-# NOS coin config
 NOS_APP_NAME = "NOS"
 NOS_PATH_PARAM = --path "44'/229'"
 NOS_COIN_TYPE = LIBN_COIN_TYPE_NOS
@@ -170,12 +181,15 @@ endif
 MAX_ADPU_INPUT_SIZE=217
 MAX_ADPU_OUTPUT_SIZE=98
 
+#####################################################################
+#                               MISC                                #
+#####################################################################
+
 ifeq ($(TARGET_NAME),TARGET_BLUE)
-ICONNAME=blue_icon_$(COIN).gif
-else ifeq ($(TARGET_NAME),TARGET_NANOS)
-ICONNAME=nanos_icon_$(COIN).gif
-else
-ICONNAME=nanox_icon_$(COIN).gif
+ICONNAME ?= $(ICON_BLUE)
+endif
+ifeq ($(TARGET_NAME),TARGET_NANOS)
+ICONNAME ?= $(ICON_NANOS)
 endif
 
 ################
