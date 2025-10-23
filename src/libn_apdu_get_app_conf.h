@@ -14,13 +14,8 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  ********************************************************************************/
-
-#ifndef LIBN_APDU_GET_APP_CONF_H
-
-#define LIBN_APDU_GET_APP_CONF_H
+#pragma once
 
 #include "libn_types.h"
 
 uint16_t libn_apdu_get_app_conf(libn_apdu_response_t *resp);
-
-#endif  // LIBN_APDU_GET_APP_CONF_H

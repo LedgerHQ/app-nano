@@ -13,11 +13,8 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- ********************************************************************************/
-
-#ifndef LIBN_H
-
-#define LIBN_H
+ ******************************************************************************/
+#pragma once
 
 #include "os.h"
 
@@ -28,6 +25,7 @@
 #define SW_TECHNICAL_DETAILS(x) LIBN_SW_TECHNICAL_PROBLEM
 
 #include "libn_secure_value.h"
+
 #include "libn_types.h"
 
 void app_async_response(libn_apdu_response_t *resp, uint16_t statusWord);
@@ -36,5 +34,3 @@ bool app_apply_state(void);
 void app_init(void);
 void app_main(void);
 void app_exit(void);
-
-#endif

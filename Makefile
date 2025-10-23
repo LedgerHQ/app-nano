@@ -1,22 +1,50 @@
-#*******************************************************************************
-#   Ledger App
-#   (c) 2017 Ledger
+# ****************************************************************************
+#    Ledger App Boilerplate
+#    (c) 2023 Ledger SAS.
 #
-#  Licensed under the Apache License, Version 2.0 (the "License");
-#  you may not use this file except in compliance with the License.
-#  You may obtain a copy of the License at
+#   Licensed under the Apache License, Version 2.0 (the "License");
+#   you may not use this file except in compliance with the License.
+#   You may obtain a copy of the License at
 #
-#      http://www.apache.org/licenses/LICENSE-2.0
+#       http://www.apache.org/licenses/LICENSE-2.0
 #
-#  Unless required by applicable law or agreed to in writing, software
-#  distributed under the License is distributed on an "AS IS" BASIS,
-#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-#  See the License for the specific language governing permissions and
-#  limitations under the License.
-#*******************************************************************************
+#   Unless required by applicable law or agreed to in writing, software
+#   distributed under the License is distributed on an "AS IS" BASIS,
+#   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#   See the License for the specific language governing permissions and
+#   limitations under the License.
+# ****************************************************************************
 
+########################################
+#          Coin configuration          #
+########################################
+NANO_COIN_NAME = nano
+BANANO_COIN_NAME = banano
+NOS_COIN_NAME = nos
+
+COIN ?= $(NANO_COIN_NAME)
+
+ifeq ($(COIN),$(NANO_COIN_NAME))
+    COIN_NAME = Nano
+		COIN_PATH = "44'/165'"
+    DEFINES += COIN_TYPE=LIBN_COIN_TYPE_NANO
+else ifeq ($(COIN),$(BANANO_COIN_NAME))
+    COIN_NAME = Banano
+		COIN_PATH = "44'/198'"
+    DEFINES += COIN_TYPE=LIBN_COIN_TYPE_BANANO
+else ifeq ($(COIN),$(NOS_COIN_NAME))
+    COIN_NAME = NOS
+		COIN_PATH = "44'/229'"
+    DEFINES += COIN_TYPE=LIBN_COIN_TYPE_NOS
+else ifeq ($(filter clean listvariants,$(MAKECMDGOALS)),)
+    $(error unsupported COIN $(COIN); expected nano, banano, or nos)
+endif
+
+########################################
+#             Boilerplate              #
+########################################
 ifeq ($(BOLOS_SDK),)
-$(error Environment variable BOLOS_SDK is not set)
+    $(error Environment variable BOLOS_SDK is not set)
 endif
 
 include $(BOLOS_SDK)/Makefile.target
@@ -25,7 +53,7 @@ include $(BOLOS_SDK)/Makefile.target
 #        Mandatory configuration       #
 ########################################
 # Application name
-APPNAME = "Boilerplate"
+APPNAME = $(COIN_NAME)
 
 # Application version
 APPVERSION_M = 1
@@ -46,6 +74,21 @@ ICON_NANOS = icons/$(COIN)_16px.gif
 ICON_BLUE = icons/${COIN}_50px.gif
 #ICON_APEX_P = icons/app_boilerplate_32px_apex.png
 
+# Application allowed derivation curves.
+# Possibles curves are: secp256k1, secp256r1, ed25519 and bls12381g1
+# If your app needs it, you can specify multiple curves by using:
+# `CURVE_APP_LOAD_PARAMS = <curve1> <curve2>`
+CURVE_APP_LOAD_PARAMS = ed25519
+
+# Application allowed derivation paths.
+# You should request a specific path for your app.
+# This serve as an isolation mechanism.
+# Most application will have to request a path according to the BIP-0044
+# and SLIP-0044 standards.
+# If your app needs it, you can specify multiple path by using:
+# `PATH_APP_LOAD_PARAMS = "44'/1'" "45'/1'"`
+PATH_APP_LOAD_PARAMS = $(COIN_PATH)
+
 # Setting to allow building variant applications
 # - <VARIANT_PARAM> is the name of the parameter which should be set
 #   to specify the variant that should be build.
@@ -53,7 +96,7 @@ ICON_BLUE = icons/${COIN}_50px.gif
 #   * It must at least contains one value.
 #   * Values can be the app ticker or anything else but should be unique.
 VARIANT_PARAM = COIN
-VARIANT_VALUES = nano banano nos
+VARIANT_VALUES = $(NANO_COIN_NAME) $(BANANO_COIN_NAME) $(NOS_COIN_NAME)
 
 # Enabling DEBUG flag will enable PRINTF and disable optimizations
 #DEBUG = 1
@@ -99,59 +142,13 @@ ENABLE_NBGL_FOR_NANO_DEVICES = 0
 #           Nano S (Legacy)            #
 ########################################
 ifeq ($(TARGET_NAME),TARGET_NANOS)
-        DEFINES += HAVE_UX_LEGACY
+    DEFINES += HAVE_UX_LEGACY
 else
-        DEFINES += HAVE_UX_FLOW
+    DEFINES += HAVE_UX_FLOW
 endif
 
 ifeq (customCA.key,$(wildcard customCA.key))
     SCP_PRIVKEY=`cat customCA.key`
-endif
-
-# Default to Nano app
-ifndef COIN
-COIN=nano
-endif
-
-APP_LOAD_PARAMS = --curve ed25519 $(COMMON_LOAD_PARAMS)
-ALL_PATH_PARAMS =
-
-MAX_APDU_OUTPUT_SIZE=98
-
-#####################################################################
-#                           COIN CONFIG                             #
-#####################################################################
-NANO_APP_NAME = "Nano"
-NANO_PATH_PARAM = --path "44'/165'"
-NANO_COIN_TYPE = LIBN_COIN_TYPE_NANO
-ALL_PATH_PARAMS += $(NANO_PATH_PARAM)
-
-BANANO_APP_NAME = "Banano"
-BANANO_PATH_PARAM = --path "44'/198'"
-BANANO_COIN_TYPE = LIBN_COIN_TYPE_BANANO
-ALL_PATH_PARAMS += $(BANANO_PATH_PARAM)
-
-NOS_APP_NAME = "NOS"
-NOS_PATH_PARAM = --path "44'/229'"
-NOS_COIN_TYPE = LIBN_COIN_TYPE_NOS
-ALL_PATH_PARAMS += $(NOS_PATH_PARAM)
-
-ifeq ($(COIN),nano)
-    APPNAME = $(NANO_APP_NAME)
-    APP_LOAD_PARAMS += $(ALL_PATH_PARAMS)
-    DEFINES += DEFAULT_COIN_TYPE=$(NANO_COIN_TYPE)
-else ifeq ($(COIN),banano)
-    APPNAME = $(BANANO_APP_NAME)
-    APP_LOAD_PARAMS += $(BANANO_PATH_PARAM)
-    DEP_APP_LOAD_PARAMS := $(NANO_APP_NAME)
-    DEFINES += DEFAULT_COIN_TYPE=$(BANANO_COIN_TYPE)
-else ifeq ($(COIN),nos)
-    APPNAME = $(NOS_APP_NAME)
-    APP_LOAD_PARAMS += $(NOS_PATH_PARAM)
-    DEP_APP_LOAD_PARAMS := $(NANO_APP_NAME)
-    DEFINES += DEFAULT_COIN_TYPE=$(NOS_COIN_TYPE)
-else ifeq ($(filter clean listvariants,$(MAKECMDGOALS)),)
-    $(error Unsupported COIN - use nano, banano, nos)
 endif
 
 #####################################################################
@@ -163,28 +160,6 @@ ICONNAME ?= $(ICON_BLUE)
 endif
 ifeq ($(TARGET_NAME),TARGET_NANOS)
 ICONNAME ?= $(ICON_NANOS)
-endif
-
-################
-# Default rule #
-################
-
-all: default
-
-############
-# Platform #
-############
-DEFINES   += HAVE_BAGL
-DEFINES   += IO_HID_EP_LENGTH=64
-DEFINES   += MAX_APDU_OUTPUT_SIZE=$(MAX_APDU_OUTPUT_SIZE)
-
-#####################################################################
-#                               DEBUG                               #
-#####################################################################
-ifneq ($(DEBUG),0)
-    ifeq ($(TARGET_NAME),TARGET_NANOS)
-        DEFINES += PRINTF=screen_printf
-    endif
 endif
 
 # variables processed by the common makefile.rules of the SDK to grab source files and include dirs

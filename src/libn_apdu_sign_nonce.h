@@ -13,14 +13,12 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- ********************************************************************************/
+ ******************************************************************************/
+#pragma once
 
-#ifndef LIBN_APDU_SIGN_NONCE_H
-
-#define LIBN_APDU_SIGN_NONCE_H
+#include "libn_helpers.h"
 
 #include "libn_types.h"
-#include "libn_helpers.h"
 
 typedef struct {
     uint8_t keyPath[MAX_BIP32_PATH_LENGTH];
@@ -28,5 +26,3 @@ typedef struct {
 } libn_apdu_sign_nonce_request_t;
 
 uint16_t libn_apdu_sign_nonce(libn_apdu_response_t *resp);
-
-#endif  // LIBN_APDU_SIGN_NONCE_H

@@ -13,17 +13,16 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- ********************************************************************************/
-
-#ifndef LIBN_CONTEXT_H
-
-#define LIBN_CONTEXT_H
+ ******************************************************************************/
+#pragma once
 
 #include "os.h"
-#include "libn_types.h"
-#include "libn_secure_value.h"
+
 #include "libn_apdu_get_address.h"
 #include "libn_apdu_sign_block.h"
+#include "libn_secure_value.h"
+
+#include "libn_types.h"
 
 typedef struct {
     /** Flag if dongle has been halted */
@@ -53,6 +52,5 @@ typedef struct {
 } libn_context_t;
 
 void libn_context_init(void);
-void libn_context_move_async_response(void);
 
-#endif
+void libn_context_move_async_response(void);

@@ -13,14 +13,12 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- ********************************************************************************/
+ ******************************************************************************/
+#pragma once
 
-#ifndef LIBN_APDU_CACHE_BLOCK_H
-
-#define LIBN_APDU_CACHE_BLOCK_H
+#include "libn_helpers.h"
 
 #include "libn_types.h"
-#include "libn_helpers.h"
 
 typedef struct {
     libn_public_key_t publicKey;
@@ -32,5 +30,3 @@ typedef struct {
 uint16_t libn_apdu_cache_block();
 
 uint16_t libn_apdu_cache_block_output(libn_apdu_cache_block_request_t *req);
-
-#endif  // LIBN_APDU_CACHE_BLOCK_H

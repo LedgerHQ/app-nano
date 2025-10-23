@@ -13,14 +13,13 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- ********************************************************************************/
+ ******************************************************************************/
+#pragma once
 
-#ifndef COINS_DSL_H
-#define COINS_DSL_H
+#include "glyphs.h"
 
 #include "coins.h"
 #include "libn_internal.h"
-#include "glyphs.h"
 
 #define REGISTER_COINS(...)                                                  \
     void init_coin_config(libn_coin_type_t coin_type) {                      \
@@ -35,5 +34,3 @@
         memmove(&libn_coin_conf_D, &conf, sizeof(libn_coin_conf_t)); \
         return;                                                      \
     }
-
-#endif  // COINS_DSL_H

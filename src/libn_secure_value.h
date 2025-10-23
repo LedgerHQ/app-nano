@@ -13,11 +13,8 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- ********************************************************************************/
-
-#ifndef LIBN_SECURE_VALUE_H
-
-#define LIBN_SECURE_VALUE_H
+ ******************************************************************************/
+#pragma once
 
 #include "os.h"
 
@@ -40,5 +37,3 @@ void ssCheck(secu16 source);
 #define SS_SET(x, y) ssSet(&x, y);
 
 #define SS_CHECK(x) ssCheck(x);
-
-#endif

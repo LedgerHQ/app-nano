@@ -13,11 +13,8 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- ********************************************************************************/
-
-#ifndef LIBN_HELPERS_H
-
-#define LIBN_HELPERS_H
+ ******************************************************************************/
+#pragma once
 
 #include "libn_types.h"
 
@@ -62,5 +59,3 @@ bool libn_verify_hash_signature(const libn_hash_t hash,
                                 const libn_signature_t sig);
 
 void libn_sign_nonce(libn_signature_t sig, const libn_nonce_t nonce, const libn_private_key_t prv);
-
-#endif

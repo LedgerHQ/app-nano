@@ -34,7 +34,7 @@ __attribute__((section(".boot"))) int main(int arg0) {
         // grab the coin type from the first parameter
         init_coin_config((libn_coin_type_t) libcall_args[1]);
     } else {
-        init_coin_config(DEFAULT_COIN_TYPE);
+        init_coin_config(COIN_TYPE);
     }
 
     // ensure exception will work as planned

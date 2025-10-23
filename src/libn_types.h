@@ -13,15 +13,13 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- ********************************************************************************/
-
-#ifndef LIBN_TYPES_H
-
-#define LIBN_TYPES_H
+ ******************************************************************************/
+#pragma once
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "os_io_seproxyhal.h"
+
+#include "io.h"
 #include "ux.h"
 
 typedef struct {
@@ -108,5 +106,3 @@ typedef struct {
     libn_public_key_t representative;
     libn_amount_t balance;
 } libn_cached_block_data_t;
-
-#endif  // LIBN_TYPES_H

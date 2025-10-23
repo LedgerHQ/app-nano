@@ -14,18 +14,15 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- ********************************************************************************/
+ ******************************************************************************/
+#pragma once
 
-#ifndef LIBN_PUBLIC_RAM_VARIABLES_H
-
-#define LIBN_PUBLIC_RAM_VARIABLES_H
+#include "io.h"
 
 #include "blake2b.h"
-
 #include "libn_context.h"
 
 /* Buffer used for asynchronous response data + status word */
-extern uint8_t libn_async_buffer_D[MAX_APDU_OUTPUT_SIZE + 2];
-extern libn_context_t libn_context_D;
+extern uint8_t libn_async_buffer_D[IO_APDU_BUFFER_SIZE];
 
-#endif  // LIBN_PUBLIC_RAM_VARIABLES_H
+extern libn_context_t libn_context_D;

@@ -13,11 +13,8 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- ********************************************************************************/
-
-#ifndef LIBN_APDU_GET_ADDRESS_H
-
-#define LIBN_APDU_GET_ADDRESS_H
+ ******************************************************************************/
+#pragma once
 
 #include "libn_types.h"
 
@@ -27,5 +24,3 @@ typedef struct {
 } libn_apdu_get_address_request_t;
 
 uint16_t libn_apdu_get_address(libn_apdu_response_t *resp);
-
-#endif  // LIBN_APDU_GET_ADDRESS_H

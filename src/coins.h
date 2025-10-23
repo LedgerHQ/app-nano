@@ -13,10 +13,8 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- ********************************************************************************/
-
-#ifndef COINS_H
-#define COINS_H
+ ******************************************************************************/
+#pragma once
 
 #include "libn_types.h"
 
@@ -34,6 +32,7 @@ void init_coin_config(libn_coin_type_t coin_type);
 #define COIN_DEFAULT_PREFIX   libn_coin_conf_D.addressDefaultPrefix
 #define COIN_UNIT             libn_coin_conf_D.defaultUnit
 #define COIN_UNIT_SCALE       libn_coin_conf_D.defaultUnitScale
+
 #if defined(TARGET_BLUE)
 #define COIN_COLOR_BG              libn_coin_conf_D.colorBackground
 #define COIN_COLOR_FG              libn_coin_conf_D.colorForeground
@@ -50,5 +49,3 @@ void init_coin_config(libn_coin_type_t coin_type);
 #define COIN_ICON_TOGGLE_OFF       libn_coin_conf_D.iconToggleOff
 #define COIN_ICON_TOGGLE_ON        libn_coin_conf_D.iconToggleOn
 #endif  // TARGET_BLUE
-
-#endif  // COINS_H

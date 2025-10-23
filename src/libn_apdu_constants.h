@@ -13,11 +13,8 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- ********************************************************************************/
-
-#ifndef LIBN_APDU_CONSTANTS_H
-
-#define LIBN_APDU_CONSTANTS_H
+ ******************************************************************************/
+#pragma once
 
 #define LIBN_CLA 0xA1
 
@@ -49,6 +46,5 @@
 #define ISO_OFFSET_CDATA 0x05
 
 #include "os.h"
-#include "libn_secure_value.h"
 
-#endif
+#include "libn_secure_value.h"

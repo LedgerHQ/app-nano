@@ -13,17 +13,14 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- ********************************************************************************/
-
-#ifndef LIBN_INTERNAL_H
-#define LIBN_INTERNAL_H
+ ******************************************************************************/
+#pragma once
 
 #include "libn_app.h"
-#include "libn_types.h"
 #include "libn_context.h"
-#include "libn_ram_variables.h"
-#include "libn_rom_variables.h"
 #include "libn_filesystem.h"
 #include "libn_helpers.h"
+#include "libn_ram_variables.h"
+#include "libn_rom_variables.h"
 
-#endif
+#include "libn_types.h"
