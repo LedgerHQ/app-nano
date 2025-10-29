@@ -1,27 +1,25 @@
 /*******************************************************************************
-*   $NANO Wallet for Ledger Nano S & Blue
-*   (c) 2018 Mart Roosmaa
-*
-*  Licensed under the Apache License, Version 2.0 (the "License");
-*  you may not use this file except in compliance with the License.
-*  You may obtain a copy of the License at
-*
-*      http://www.apache.org/licenses/LICENSE-2.0
-*
-*  Unless required by applicable law or agreed to in writing, software
-*  distributed under the License is distributed on an "AS IS" BASIS,
-*  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-*  See the License for the specific language governing permissions and
-*  limitations under the License.
-********************************************************************************/
-
-#ifndef LIBN_TYPES_H
-
-#define LIBN_TYPES_H
+ *   $NANO Wallet for Ledger Nano S & Blue
+ *   (c) 2018 Mart Roosmaa
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ ******************************************************************************/
+#pragma once
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "os_io_seproxyhal.h"
+
+#include "io.h"
 #include "ux.h"
 
 typedef struct {
@@ -82,16 +80,16 @@ typedef struct {
     const uint32_t colorConfirmOverForeground;
     const bagl_icon_details_t *iconToggleOff;
     const bagl_icon_details_t *iconToggleOn;
-#endif // TARGET_BLUE
+#endif  // TARGET_BLUE
 } libn_coin_conf_t;
 
 typedef struct {
-    char *prefix;
+    const char *prefix;
     uint8_t prefixLen;
 } libn_address_formatter_t;
 
 typedef struct {
-    char *suffix;
+    const char *suffix;
     uint8_t suffixLen;
     uint8_t unitScale;
 } libn_amount_formatter_t;
@@ -108,5 +106,3 @@ typedef struct {
     libn_public_key_t representative;
     libn_amount_t balance;
 } libn_cached_block_data_t;
-
-#endif // LIBN_TYPES_H

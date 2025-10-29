@@ -1,19 +1,17 @@
-#ifndef ED25519_H
-#define ED25519_H
+#pragma once
 
 #include <stddef.h>
+
 #include "libn_types.h"
 
-void ed25519_publickey(const libn_private_key_t privateKey,
-                       libn_public_key_t publicKey);
+cx_err_t ed25519_publickey(const libn_private_key_t prv, libn_public_key_t pub);
 
-void ed25519_sign(const uint8_t *m, size_t mlen,
-                  const libn_private_key_t privateKey,
-                  const libn_public_key_t publicKey,
-                  libn_signature_t signature);
+cx_err_t ed25519_sign(const uint8_t *m,
+                      size_t mlen,
+                      const libn_private_key_t prv,
+                      libn_signature_t sig);
 
-int ed25519_sign_open(const uint8_t *m, size_t mlen,
-                      const libn_public_key_t publicKey,
-                      const libn_signature_t signature);
-
-#endif // ED25519_H
+bool ed25519_sign_open(const uint8_t *m,
+                       size_t mlen,
+                       const libn_public_key_t pub,
+                       const libn_signature_t sig);

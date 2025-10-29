@@ -1,7 +1,10 @@
 bin
+build
 debug
 dep
 obj
+output-scan-build
+.vscode
 src/glyphs.c
 src/glyphs.h
 customCA.key
