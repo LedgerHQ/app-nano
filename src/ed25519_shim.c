@@ -2,57 +2,71 @@
 #include "os.h"
 #include "cx.h"
 
-void ed25519_publickey(const libn_private_key_t privateKey,
-                       libn_public_key_t publicKey) {
-    cx_ecfp_private_key_t sdkPrivateKey;
-    cx_ecfp_public_key_t sdkPublicKey;
+cx_err_t ed25519_publickey(const libn_private_key_t prv, libn_public_key_t pub) {
+    cx_ecfp_private_key_t sdkPrv;
+    cx_ecfp_public_key_t sdkPub;
+    cx_err_t error;
 
-    cx_ecfp_init_private_key(CX_CURVE_Ed25519,
-        (uint8_t *)privateKey, sizeof(libn_private_key_t),
-        &sdkPrivateKey);
-    cx_ecfp_init_public_key(CX_CURVE_Ed25519, NULL, 0, &sdkPublicKey);
+    CX_CHECK(cx_ecfp_init_private_key_no_throw(CX_CURVE_Ed25519,
+                                               (uint8_t *) prv,
+                                               sizeof(libn_private_key_t),
+                                               &sdkPrv));
+    CX_CHECK(cx_ecfp_init_public_key_no_throw(CX_CURVE_Ed25519, NULL, 0, &sdkPub));
 
-    cx_ecfp_generate_pair2(CX_CURVE_Ed25519, &sdkPublicKey, &sdkPrivateKey, true, CX_BLAKE2B);
-    os_memset(&sdkPrivateKey, 0, sizeof(sdkPrivateKey));
+    CX_CHECK(cx_ecfp_generate_pair2_no_throw(CX_CURVE_Ed25519, &sdkPub, &sdkPrv, true, CX_BLAKE2B));
+    memset(&sdkPrv, 0, sizeof(sdkPrv));
 
-    cx_edward_compress_point(CX_CURVE_Ed25519, sdkPublicKey.W, sdkPublicKey.W_len);
-    os_memmove(publicKey, sdkPublicKey.W+1, sizeof(libn_public_key_t));
+    CX_CHECK(cx_edwards_compress_point_no_throw(CX_CURVE_Ed25519, sdkPub.W, sdkPub.W_len));
+    memmove(pub, sdkPub.W + 1, sizeof(libn_public_key_t));
+
+end:
+    return error;
 }
 
-void ed25519_sign(const uint8_t *m, size_t mlen,
-                  const libn_private_key_t privateKey,
-                  const libn_public_key_t publicKey,
-                  libn_signature_t signature) {
-    cx_ecfp_private_key_t sdkPrivateKey;
-    cx_ecfp_init_private_key(CX_CURVE_Ed25519,
-        (uint8_t *)privateKey, sizeof(libn_private_key_t),
-        &sdkPrivateKey);
+cx_err_t ed25519_sign(const uint8_t *m,
+                      size_t mlen,
+                      const libn_private_key_t prv,
+                      libn_signature_t sig) {
+    cx_ecfp_private_key_t sdkPrv;
+    cx_err_t error;
 
-    cx_eddsa_sign(
-        &sdkPrivateKey,
-        0, CX_BLAKE2B,
-        (uint8_t *)m, mlen,
-        NULL, 0,
-        signature, sizeof(libn_signature_t),
-        0);
-    os_memset(&sdkPrivateKey, 0, sizeof(sdkPrivateKey));
+    CX_CHECK(cx_ecfp_init_private_key_no_throw(CX_CURVE_Ed25519,
+                                               (uint8_t *) prv,
+                                               sizeof(libn_private_key_t),
+                                               &sdkPrv));
+
+    CX_CHECK(cx_eddsa_sign_no_throw(&sdkPrv,
+                                    CX_BLAKE2B,
+                                    (uint8_t *) m,
+                                    mlen,
+                                    sig,
+                                    sizeof(libn_signature_t)));
+    memset(&sdkPrv, 0, sizeof(sdkPrv));
+
+end:
+    return error;
 }
 
-int ed25519_sign_open(const uint8_t *m, size_t mlen,
-                      const libn_public_key_t publicKey,
-                      const libn_signature_t signature) {
-    cx_ecfp_public_key_t sdkPublicKey;
-    cx_ecfp_init_public_key(CX_CURVE_Ed25519, NULL, 0, &sdkPublicKey);
+bool ed25519_sign_open(const uint8_t *m,
+                       size_t mlen,
+                       const libn_public_key_t pub,
+                       const libn_signature_t sig) {
+    cx_ecfp_public_key_t sdkPub;
+    cx_err_t error;
 
-    sdkPublicKey.W[0] = 0x02;
-    os_memmove(sdkPublicKey.W+1, publicKey, sizeof(libn_public_key_t));
-    cx_edward_decompress_point(CX_CURVE_Ed25519, sdkPublicKey.W, sdkPublicKey.W_len);
-    sdkPublicKey.W_len = 65;
+    CX_CHECK(cx_ecfp_init_public_key_no_throw(CX_CURVE_Ed25519, NULL, 0, &sdkPub));
 
-    return cx_eddsa_verify(
-        &sdkPublicKey,
-        0, CX_BLAKE2B,
-        (uint8_t *)m, mlen,
-        NULL, 0,
-        (uint8_t *)signature, sizeof(libn_signature_t));
+    sdkPub.W[0] = 0x02;
+    memmove(sdkPub.W + 1, pub, sizeof(libn_public_key_t));
+
+    CX_CHECK(cx_edwards_decompress_point_no_throw(CX_CURVE_Ed25519, sdkPub.W, sdkPub.W_len));
+    sdkPub.W_len = 65;
+
+end:
+    return cx_eddsa_verify_no_throw(&sdkPub,
+                                    CX_BLAKE2B,
+                                    (uint8_t *) m,
+                                    mlen,
+                                    (uint8_t *) sig,
+                                    sizeof(libn_signature_t));
 }
